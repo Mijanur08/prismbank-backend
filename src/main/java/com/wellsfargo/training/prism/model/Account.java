@@ -21,4 +21,8 @@ public class Account {
 	
 	private @NonNull String accountType;
 	
+//	@OneToMany
+//	@JoinColumn(name="beneficiary_id")
+//	private Beneficiary beneficiaries;
+	
 }

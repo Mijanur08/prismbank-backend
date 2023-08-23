@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,8 +24,14 @@ public class Beneficiary {
 	private Long bid;
 	private @NonNull String beneficiaryName;
 	private @NonNull Long accountNo;
+
 	private @NonNull String relation;
 	private String nickName;
+
+	@ManyToOne
+	@JoinColumn(name="beneficiary_of")
+	private Account account;
+
 
 
 }
