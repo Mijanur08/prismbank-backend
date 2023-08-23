@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Customer;
+import com.wellsfargo.training.prism.service.AccountService;
 import com.wellsfargo.training.prism.service.CustomerService;
 
 @CrossOrigin(origins="http://localhost:3000")
@@ -27,6 +28,8 @@ import com.wellsfargo.training.prism.service.CustomerService;
 public class CustomerController {
 	@Autowired
 	private CustomerService cService;
+	@Autowired
+	AccountService aService;
 	
 	@PostMapping(value="/create")
 	public ResponseEntity<String> createAccount(@RequestBody @Validated Customer c){
@@ -41,7 +44,7 @@ public class CustomerController {
 	public List<Customer> getAllCustomers(){
 		return cService.listAll();
 	}
-	@PutMapping(value="customer/{accountNo}")
+	@PutMapping(value="/customer/{accountNo}")
 	public ResponseEntity<Customer> updateAccount(@PathVariable(value="accountNo")
 	Long accountNo, @Validated @RequestBody Customer c) throws ResourceNotFoundException{
 		Customer prevAccountDetails= cService.getSingleCustomer(accountNo).
@@ -76,6 +79,7 @@ public class CustomerController {
 		cService.getSingleCustomer(accountNo).
 				orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
 		cService.deleteCustomer(accountNo);
+		aService.deleteAccount(accountNo);
 		
 		Map<String,Boolean> response=new HashMap<>();
 		response.put("Customer Deleted", Boolean.TRUE);

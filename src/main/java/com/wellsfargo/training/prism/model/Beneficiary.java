@@ -21,8 +21,9 @@ public class Beneficiary {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long bid;
 	private @NonNull String beneficiaryName;
-	private String nickName;
 	private @NonNull Long accountNo;
+	private @NonNull String relation;
+	private String nickName;
 
 
 }

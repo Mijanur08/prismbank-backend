@@ -6,12 +6,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
 @Entity
-@NoArgsConstructor
 @Getter
 @Setter
 @Table(name="customers")
@@ -50,6 +48,8 @@ public class Customer {
 	@Column(name="phone", unique=true)
 	private @NonNull String phoneNo;
 	
+	private boolean approved;
+	
 	 /*
      * Modeling with foreign key relationship in JPA.
      * Place @OneToOne on the primary class entity field Dealer.
@@ -63,5 +63,11 @@ public class Customer {
 	@OneToOne( cascade = CascadeType.ALL)
 	@JoinColumn(name="permanent_address")
 	private Address perAddress;
+
+	public Customer() {
+		this.approved = false;
+	}
+	
+	
 	
 }
