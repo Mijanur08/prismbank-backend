@@ -17,7 +17,7 @@ public class Customer {
 	@Id
 	@SequenceGenerator(name="account_no_seq", initialValue=151000000, allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.IDENTITY, generator="account_no_seq")
-	@Column(name="acoount_number")
+	@Column(name="account_number")
 	private Long accountNo;
 	
 	
