@@ -1,5 +1,8 @@
 package com.wellsfargo.training.prism.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,9 +44,9 @@ public class InternetBankingController {
 		return ResponseEntity.badRequest().body("Account does not exist");
 	}
 	@PostMapping(value="/login")
-	public Boolean loginCustomer(@RequestBody @Validated InternetBankingUser ibu) throws ResourceNotFoundException{
-		Boolean a = false;
-
+	public Map<String,Long> loginCustomer(@RequestBody @Validated InternetBankingUser ibu) throws ResourceNotFoundException{
+		Map<String, Long > response= new HashMap<>();
+		Long flag = 0L;
 		String userid = ibu.getEmail();
 		String password = ibu.getPassword();
 		InternetBankingUser login= IBService.loginCustomer(userid).orElseThrow(() ->
@@ -51,10 +54,12 @@ public class InternetBankingController {
 		
 		if(userid.equals(login.getEmail()) && password.equals(login.getPassword()))
 		{
-			a=true;
+			flag = 1L;
 
 		}
+		response.put("login", flag);
+		response.put("accountNo",login.getAccountNumber() );
 
-		return a;
+		return response;
 	}
 }
