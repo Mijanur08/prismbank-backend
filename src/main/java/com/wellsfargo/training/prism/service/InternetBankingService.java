@@ -16,6 +16,7 @@ public class InternetBankingService {
 	@Autowired
 	private InternetBankingRepository ibrepo;
 	
+	
 	public InternetBankingUser registerUser(InternetBankingUser ibu) {
 		return ibrepo.save(ibu);
 	}
@@ -24,5 +25,6 @@ public class InternetBankingService {
 
 		return ibrepo.findByEmail(userid);
 	}
-
+	
+	
 }

@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Account;
+import com.wellsfargo.training.prism.model.Beneficiary;
 import com.wellsfargo.training.prism.model.Customer;
 import com.wellsfargo.training.prism.service.AccountService;
+import com.wellsfargo.training.prism.service.BeneficiaryService;
 import com.wellsfargo.training.prism.service.CustomerService;
 
 @CrossOrigin(origins="http://localhost:3000")
@@ -28,6 +30,9 @@ public class AccountController {
 	@Autowired
 	private CustomerService cService;
 	
+	@Autowired
+	private BeneficiaryService bService;
+	
 	@PostMapping(value="/approve")
 	public ResponseEntity<String> approveAccount(@RequestBody @Validated Account newAccount){
 		try {
@@ -38,7 +43,7 @@ public class AccountController {
 			c = cService.registerCustomer(c);
 			Account acc = aService.saveAccountDetails(newAccount);
 			if(acc != null) {
-				return ResponseEntity.ok("Account with account number :"+acc.getAccountNo()+"is approved by admin");
+				return ResponseEntity.ok("Account with account number :"+acc.getAccountNo()+" is approved by admin");
 			}
 			
 		}
@@ -62,6 +67,27 @@ public class AccountController {
 		 return acc.getBalance();
 	}
 	
+//	@PostMapping(value="/addbeneficiary")
+//	public Beneficiary saveBeneficiary(@Validated @RequestBody Beneficiary beneficiary) {
+//		Beneficiary b = bService.saveBeneficiary(beneficiary);
+//		return b;
+//	}
+//	
+	@PostMapping(value="/addbeneficiary/{accountNo}")
+	public ResponseEntity<String> saveBeneficiary(@Validated @RequestBody Beneficiary b, 
+			@PathVariable(value="accountNo") Long accountNo) {
+		Account account = aService.getAccountDetails(accountNo).orElse(null);
+		if(account != null) {
+			b.setAccount(account);
+			Beneficiary addBeneficiary = bService.saveBeneficiary(b);
+		
+		
+		if(addBeneficiary != null)
+			return ResponseEntity.ok("Beneficiary added successfull with beneficiary id : " + addBeneficiary.getBid());
+		}
+
+		return ResponseEntity.badRequest().body("failed to add beneficiary");
+	}
 	
 	
 

@@ -1,11 +1,13 @@
 package com.wellsfargo.training.prism.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 @Entity
@@ -19,10 +21,7 @@ public class Account {
 	
 	private  float balance;
 	
-	private @NonNull String accountType;
-	
-//	@OneToMany
-//	@JoinColumn(name="beneficiary_id")
-//	private Beneficiary beneficiaries;
+//	private @NonNull String accountType;
+
 	
 }

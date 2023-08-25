@@ -48,6 +48,9 @@ public class Customer {
 	@Column(name="phone", unique=true)
 	private @NonNull String phoneNo;
 	
+	@Column(name="account_type")
+	private @NonNull String accountType;
+	
 	private boolean approved;
 	
 	 /*
@@ -68,6 +71,10 @@ public class Customer {
 		this.approved = false;
 	}
 	
+//	@OneToOne(cascade=CascadeType.ALL)
+//	@JoinColumn(name="acct_no")
+//	private Account account;
+//	
 	
 	
 }
