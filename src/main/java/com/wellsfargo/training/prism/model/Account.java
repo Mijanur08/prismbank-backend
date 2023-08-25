@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 public class Account {
 	@Id
-	@Column(name="acoount_number")
+	@Column(name="account_number")
 	private Long accountNo;
 	
 	private  float balance;
