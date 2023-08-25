@@ -1,5 +1,6 @@
 package com.wellsfargo.training.prism.controller;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +16,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Account;
 import com.wellsfargo.training.prism.model.Transaction;
+import com.wellsfargo.training.prism.service.AccountService;
 import com.wellsfargo.training.prism.service.TransactionService;
+
+
 
 @CrossOrigin(origins="http://localhost:3000")
 @RestController
@@ -28,7 +34,24 @@ public class TransactionController {
 	private TransactionService tService;
 	
 	@Autowired
+	private AccountService aService;
+	
+	@Autowired
 	private AccountController aController;
+	
+	public static class TransactionDetails{
+		public Long tid;	
+		public String toAccount;
+		public String fromAccount;
+		public float amount;
+		public String type;
+		public String mode;
+		public String remark;
+		
+		@JsonFormat(pattern = "yyyy-MM-dd@HH:mm:ss")
+		public LocalDateTime timestamp;	
+		public float balance;
+	};
 	
 	@PostMapping(value="/create")
 	public ResponseEntity<String> makeTransaction(@RequestBody @Validated Transaction t){
@@ -41,18 +64,17 @@ public class TransactionController {
 			dummy.setAccountNo(t.getSenderAccount().getAccountNo());
 			dummy.setBalance(senderAccountBalance-t.getAmount());
 			aController.setAccountBalance(dummy);
+			Account ac = aService.getAccountDetails(t.getSenderAccount().getAccountNo()).orElse(null);
+			t.setSenderAccount(ac);
+			
 			dummy.setAccountNo(t.getReceiverAccount().getAccountNo());
 			dummy.setBalance(receiverAccountBalance+t.getAmount());
 			aController.setAccountBalance(dummy);
+			ac = aService.getAccountDetails(t.getReceiverAccount().getAccountNo()).orElse(null);
+			t.setReceiverAccount(ac);
+			
 			Transaction successful = tService.saveTransaction(t);
 			return ResponseEntity.ok("Transaction Successful and transaction id : "+successful.getTransactionId());
-			
-			
-//			catch(Exception e) {
-//				return ResponseEntity.badRequest().body("Unable to Complete Transaction : "+e.getMessage());
-//			}
-			
-			
 			
 		}
 		catch(Exception e) {
@@ -72,27 +94,48 @@ public class TransactionController {
 	}
 	
 	@GetMapping(value="/{accountNo}")
-	public ResponseEntity<List<Transaction>> getTransactionsOfAccount(@PathVariable(value="accountNo") Long accountNo){
-		
-		
-		try {
-//			List<Transaction> creditTransactions = tService.getCreditTransactions(accountNo);
-//			List<Transaction> debitTransactions = tService.getDebitTransactions(accountNo);
-//			
-//			List<Transaction> transactions;
-//			transactions = creditTransactions;
-//			if(transactions == null) transactions=debitTransactions;
-//			else if(debitTransactions != null) transactions.addAll(debitTransactions);
-			List<Transaction> transactions = tService.getTransactionsOfAccount(accountNo);
+	public ResponseEntity<List<TransactionDetails>> getTransactionsOfAccount
+	(@PathVariable(value="accountNo") Long accountNo){
+		try {			
+			Account account = aService.getAccountDetails(accountNo).orElse(null);
+			if(account == null) throw new ResourceNotFoundException("Account Not Found");
+			List<Transaction> creditTransactions = tService.getCreditTransactions(account);
+			List<Transaction> debitTransactions = tService.getDebitTransactions(account);
 			
-			if(transactions != null) {
-				//TODO: Sorting the list according to time.
-				return ResponseEntity.ok(transactions);
+			List<TransactionDetails> result = new ArrayList<>();
+			
+			for(Transaction t : creditTransactions) {
+				TransactionDetails td = new TransactionDetails();
+				td.tid = t.getTransactionId();
+				td.type = "Deposit";
+				td.mode = t.getMode();
+				td.fromAccount = td.mode.equals("cash")?"": String.valueOf(t.getSenderAccount().getAccountNo());
+				td.toAccount = "self";
+				td.amount=t.getAmount();
+				td.remark=t.getRemarks();
+				td.timestamp = t.getTimestamp();
+				td.balance = t.getReceiverAccount().getBalance();
+				result.add(td);
 			}
-			return ResponseEntity.badRequest().body(new ArrayList<>());
+			for(Transaction t : debitTransactions) {
+				TransactionDetails td = new TransactionDetails();
+				td.tid = t.getTransactionId();
+				td.type = "Withdrawal";
+				td.mode = t.getMode();
+				td.toAccount = td.mode.equals("cash")?"": String.valueOf(t.getReceiverAccount().getAccountNo());
+				td.fromAccount = "self";
+				td.amount=t.getAmount();
+				td.remark=t.getRemarks();
+				td.timestamp = t.getTimestamp();
+				td.balance = t.getReceiverAccount().getBalance();
+				result.add(td);
+			}
+			result.sort((o1,o2)
+					-> o2.timestamp.compareTo(o1.timestamp));
+			return ResponseEntity.ok(result);
+
 		}
 		catch(Exception e) {
-			System.out.println("Hi  I am running");
 			return ResponseEntity.status(HttpStatus. INTERNAL_SERVER_ERROR).body(null);
 		}
 	}

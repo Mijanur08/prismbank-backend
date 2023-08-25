@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.wellsfargo.training.prism.model.Account;
 import com.wellsfargo.training.prism.model.Transaction;
 import com.wellsfargo.training.prism.repository.TransactionRepository;
 
@@ -29,8 +30,11 @@ public class TransactionService {
 	public List<Transaction> listAll() {
 		return tRepo.findAll(Sort.by(Sort.Direction.DESC, "timestamp"));
 	}
-	public List<Transaction> getTransactionsOfAccount(Long accountNo){
-		return tRepo.getTransactionsOfAccount(accountNo);
+	public List<Transaction> getCreditTransactions(Account account){
+		return tRepo.findByReceiverAccount(account);
+	}
+	public List<Transaction> getDebitTransactions(Account account){
+		return tRepo.findBySenderAccount(account);
 	}
 	
 		
