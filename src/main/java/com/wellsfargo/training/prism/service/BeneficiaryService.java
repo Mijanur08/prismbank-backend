@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wellsfargo.training.prism.model.Account;
 import com.wellsfargo.training.prism.model.Beneficiary;
 import com.wellsfargo.training.prism.repository.BeneficiaryRepository;
 
@@ -32,6 +33,10 @@ public class BeneficiaryService {
 	
 	public void deleteBeneficiary(Long beneficiaryId) {
 		bRepo.deleteById(beneficiaryId);
+	}
+	
+	public List<Beneficiary> listAllAddedBeneficiary(Account account) {
+		return bRepo.findByAccount(account);
 	}
 
 }

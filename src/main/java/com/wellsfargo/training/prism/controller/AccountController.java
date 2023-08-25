@@ -1,5 +1,7 @@
 package com.wellsfargo.training.prism.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -87,6 +89,11 @@ public class AccountController {
 		}
 
 		return ResponseEntity.badRequest().body("failed to add beneficiary");
+	}
+	
+	@GetMapping(value="/getbeneficiary/{accountNo}")
+	public List<Beneficiary> getAllBeneficiary(@PathVariable(value="accountNo") Account accountNo) {
+		return bService.listAllAddedBeneficiary(accountNo);
 	}
 	
 	
