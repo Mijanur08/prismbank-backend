@@ -1,6 +1,5 @@
 package com.wellsfargo.training.prism.controller;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Account;
-import com.wellsfargo.training.prism.model.Beneficiary;
 import com.wellsfargo.training.prism.model.Customer;
 import com.wellsfargo.training.prism.service.AccountService;
-import com.wellsfargo.training.prism.service.BeneficiaryService;
 import com.wellsfargo.training.prism.service.CustomerService;
 
 @CrossOrigin(origins="http://localhost:3000")
@@ -29,11 +26,9 @@ public class AccountController {
 	
 	@Autowired
 	AccountService aService;
-	@Autowired
-	private CustomerService cService;
 	
 	@Autowired
-	private BeneficiaryService bService;
+	private CustomerService cService;
 	
 	@PostMapping(value="/approve")
 	public ResponseEntity<String> approveAccount(@RequestBody @Validated Account newAccount){
@@ -69,37 +64,4 @@ public class AccountController {
 		 return acc.getBalance();
 	}
 	
-//	@PostMapping(value="/addbeneficiary")
-//	public Beneficiary saveBeneficiary(@Validated @RequestBody Beneficiary beneficiary) {
-//		Beneficiary b = bService.saveBeneficiary(beneficiary);
-//		return b;
-//	}
-//	
-	@PostMapping(value="/addbeneficiary/{accountNo}")
-	public ResponseEntity<String> saveBeneficiary(@Validated @RequestBody Beneficiary b, 
-			@PathVariable(value="accountNo") Long accountNo) {
-		try {
-			Account account = aService.getAccountDetails(accountNo).orElse(null);
-			if(account == null) throw (new ResourceNotFoundException("Account does not Exist"));
-			b.setAccount(account);
-			Beneficiary addBeneficiary = bService.saveBeneficiary(b);
-				
-			
-			if(addBeneficiary == null)
-				throw(new  Exception("Issues with server"));
-			return ResponseEntity.ok("Beneficiary added successfull with beneficiary id : " + addBeneficiary.getBid());
-		}
-		catch(Exception e) {			
-			return ResponseEntity.badRequest().body("failed to add beneficiary : "+e.getMessage());
-		}
-
-	}
-	
-	@GetMapping(value="/getbeneficiary/{accountNo}")
-	public List<Beneficiary> getAllBeneficiary(@PathVariable(value="accountNo") Account accountNo) {
-		return bService.listAllAddedBeneficiary(accountNo);
-	}
-	
-	
-
 }
