@@ -21,6 +21,7 @@ import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Account;
 import com.wellsfargo.training.prism.model.Transaction;
 import com.wellsfargo.training.prism.service.AccountService;
+import com.wellsfargo.training.prism.service.InternetBankingService;
 import com.wellsfargo.training.prism.service.TransactionService;
 
 
@@ -39,6 +40,9 @@ public class TransactionController {
 	@Autowired
 	private AccountController aController;
 	
+	@Autowired
+	private InternetBankingService ibuService;
+	
 	public static class TransactionDetails{
 		public Long tid;	
 		public String toAccount;
@@ -47,33 +51,101 @@ public class TransactionController {
 		public String type;
 		public String mode;
 		public String remark;
+		public String transactionPassword;
 		
 		@JsonFormat(pattern = "yyyy-MM-dd@HH:mm:ss")
 		public LocalDateTime timestamp;	
-		public float balance;
+		//public float balance;
 	};
 	
 	@PostMapping(value="/create")
-	public ResponseEntity<String> makeTransaction(@RequestBody @Validated Transaction t){
+	public ResponseEntity<String> makeTransaction(@RequestBody @Validated TransactionDetails t){	
 		try {
-			float senderAccountBalance = aController.getAccountBalance(t.getSenderAccount().getAccountNo());
-			float receiverAccountBalance = aController.getAccountBalance(t.getReceiverAccount().getAccountNo());
-			if(t.getAmount()>senderAccountBalance) throw(new Exception("Insufficient Balance"));
+			Long senderAcc = Long.valueOf(t.fromAccount);
+			Long receiverAcc = Long.valueOf(t.toAccount);
+			
+			if(ibuService.checkTransactionPassword(senderAcc, t.transactionPassword) == false)
+				throw(new Exception("Transaction Password Incorrect"));
+			
+			float senderAccountBalance = aController.getAccountBalance(senderAcc);
+			float receiverAccountBalance = aController.getAccountBalance(receiverAcc);
+			if(t.amount>senderAccountBalance) 
+				throw(new Exception("Insufficient Balance"));
+			
+			Transaction transaction = new Transaction();
+			transaction.setAmount(t.amount);
+			transaction.setMode(t.mode);
+			transaction.setRemark(t.remark);
 			
 			Account dummy  = new Account();
-			dummy.setAccountNo(t.getSenderAccount().getAccountNo());
-			dummy.setBalance(senderAccountBalance-t.getAmount());
+			dummy.setAccountNo(senderAcc);
+			dummy.setBalance(senderAccountBalance-t.amount);
 			aController.setAccountBalance(dummy);
-			Account ac = aService.getAccountDetails(t.getSenderAccount().getAccountNo()).orElse(null);
-			t.setSenderAccount(ac);
+			dummy = aService.getAccountDetails(senderAcc).orElse(null);
+			transaction.setSenderAccount(new Account(dummy));
 			
-			dummy.setAccountNo(t.getReceiverAccount().getAccountNo());
-			dummy.setBalance(receiverAccountBalance+t.getAmount());
+			dummy = new Account();
+			dummy.setAccountNo(receiverAcc);
+			dummy.setBalance(receiverAccountBalance+t.amount);
 			aController.setAccountBalance(dummy);
-			ac = aService.getAccountDetails(t.getReceiverAccount().getAccountNo()).orElse(null);
-			t.setReceiverAccount(ac);
+			dummy = aService.getAccountDetails(receiverAcc).orElse(null);
+			transaction.setReceiverAccount(new Account(dummy));
 			
-			Transaction successful = tService.saveTransaction(t);
+			Transaction successful = tService.saveTransaction(transaction);
+			return ResponseEntity.ok("Transaction Successful and transaction id : "+successful.getTransactionId());
+			
+		}
+		catch(Exception e) {
+			return ResponseEntity.badRequest().body("Unable to Complete Transaction : "+e.getMessage());
+		}
+	}
+	@PostMapping(value = "/cashdeposit")
+	public ResponseEntity<String> cashDepositByAdmin(@RequestBody @Validated TransactionDetails t){
+		try {
+			Long accNo = Long.valueOf(t.toAccount);
+			float accountBalance = aController.getAccountBalance(accNo);
+			Transaction transaction = new Transaction();
+			transaction.setAmount(t.amount);
+			transaction.setMode("cash");
+			
+						
+			Account dummy = new Account();
+			dummy.setAccountNo(accNo);
+			dummy.setBalance(accountBalance+t.amount);
+			aController.setAccountBalance(dummy);
+			dummy = aService.getAccountDetails(accNo).orElse(null);
+			transaction.setReceiverAccount(new Account(dummy));
+			
+			
+			Transaction successful = tService.saveTransaction(transaction);
+			return ResponseEntity.ok("Transaction Successful and transaction id : "+successful.getTransactionId());
+			
+		}
+		catch(Exception e) {
+			return ResponseEntity.badRequest().body("Unable to Complete Transaction : "+e.getMessage());
+		}
+	}
+	@PostMapping(value = "/cashwithdraw")
+	public ResponseEntity<String> cashWithdrawByAdmin(@RequestBody @Validated TransactionDetails t){
+		try {
+			Long accNo = Long.valueOf(t.fromAccount);
+			float accountBalance = aController.getAccountBalance(accNo);
+			if(t.amount>accountBalance) 
+				throw(new Exception("Insufficient Balance"));
+			Transaction transaction = new Transaction();
+			transaction.setAmount(t.amount);
+			transaction.setMode("cash");
+			
+						
+			Account dummy = new Account();
+			dummy.setAccountNo(accNo);
+			dummy.setBalance(accountBalance-t.amount);
+			aController.setAccountBalance(dummy);
+			dummy = aService.getAccountDetails(accNo).orElse(null);
+			transaction.setSenderAccount(new Account(dummy));
+			
+			
+			Transaction successful = tService.saveTransaction(transaction);
 			return ResponseEntity.ok("Transaction Successful and transaction id : "+successful.getTransactionId());
 			
 		}
@@ -112,9 +184,9 @@ public class TransactionController {
 				td.fromAccount = td.mode.equals("cash")?"": String.valueOf(t.getSenderAccount().getAccountNo());
 				td.toAccount = "self";
 				td.amount=t.getAmount();
-				td.remark=t.getRemarks();
+				td.remark=t.getRemark();
 				td.timestamp = t.getTimestamp();
-				td.balance = t.getReceiverAccount().getBalance();
+				//td.balance = t.getReceiverAccount().getBalance();
 				result.add(td);
 			}
 			for(Transaction t : debitTransactions) {
@@ -125,9 +197,9 @@ public class TransactionController {
 				td.toAccount = td.mode.equals("cash")?"": String.valueOf(t.getReceiverAccount().getAccountNo());
 				td.fromAccount = "self";
 				td.amount=t.getAmount();
-				td.remark=t.getRemarks();
+				td.remark=t.getRemark();
 				td.timestamp = t.getTimestamp();
-				td.balance = t.getReceiverAccount().getBalance();
+				//td.balance = t.getSenderAccount().getBalance();
 				result.add(td);
 			}
 			result.sort((o1,o2)
