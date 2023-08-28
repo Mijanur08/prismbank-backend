@@ -29,19 +29,23 @@ public class InternetBankingController {
 	
 	@PostMapping(value="/register")
 	public ResponseEntity<String> createIBUser(@RequestBody @Validated InternetBankingUser ibu){
-		Long accountNumber = ibu.getAccountNumber();
-		Customer c = cService.findAccount(accountNumber);
-		if(c!=null) {
+		try {
+			Long accountNumber = ibu.getAccountNumber();
+			Customer c = cService.findAccount(accountNumber);
+			if(c==null) throw (new ResourceNotFoundException("Account does not exist"));
+					
+				ibu.setEmail(c.getEmail());
+				InternetBankingUser registeredUser = IBService.registerUser(ibu);
 				
-			ibu.setEmail(c.getEmail());
-			InternetBankingUser registeredUser = IBService.registerUser(ibu);
-			
-			if(registeredUser != null)
-				return ResponseEntity.ok("You are successfully registered for Internet Banking ");
-			
-			return ResponseEntity.badRequest().body("Registration Failed");
+				if(registeredUser == null) throw(new Exception("Issues with server"));
+					
+			return ResponseEntity.ok("You are successfully registered for Internet Banking ");
+				
 		}
-		return ResponseEntity.badRequest().body("Account does not exist");
+		catch(Exception e) {
+			return ResponseEntity.badRequest().body("Registration Failed : "+e.getMessage());
+			
+		}
 	}
 	@PostMapping(value="/login")
 	public Map<String,Long> loginCustomer(@RequestBody @Validated InternetBankingUser ibu) throws ResourceNotFoundException{

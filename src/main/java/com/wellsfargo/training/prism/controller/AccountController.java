@@ -40,19 +40,19 @@ public class AccountController {
 		try {
 			Customer c = cService.findAccount(newAccount.getAccountNo());
 			if(c == null) 
-				return ResponseEntity.badRequest().body("Account does not exist");
+				throw (new ResourceNotFoundException("Account does not exist"));
 			c.setApproved(true);
 			c = cService.registerCustomer(c);
 			Account acc = aService.saveAccountDetails(newAccount);
-			if(acc != null) {
-				return ResponseEntity.ok("Account with account number :"+acc.getAccountNo()+" is approved by admin");
-			}
-			
+
+			if(acc == null)
+				throw (new Exception("Unable to open Account"));
+			return ResponseEntity.ok("Account with account number :"+acc.getAccountNo()+"is approved by admin");
+
 		}
 		catch(Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return ResponseEntity.badRequest().body("Failed to approve Account by admin : " +e.getMessage());
 		}
-		return ResponseEntity.badRequest().body("Failed to approve Account by admin");
 	}
 	@GetMapping(value="/balance/{accountNo}")
 	public float getAccountBalance(@PathVariable(value="accountNo") Long accountNo) throws 
@@ -78,17 +78,21 @@ public class AccountController {
 	@PostMapping(value="/addbeneficiary/{accountNo}")
 	public ResponseEntity<String> saveBeneficiary(@Validated @RequestBody Beneficiary b, 
 			@PathVariable(value="accountNo") Long accountNo) {
-		Account account = aService.getAccountDetails(accountNo).orElse(null);
-		if(account != null) {
+		try {
+			Account account = aService.getAccountDetails(accountNo).orElse(null);
+			if(account == null) throw (new ResourceNotFoundException("Account does not Exist"));
 			b.setAccount(account);
 			Beneficiary addBeneficiary = bService.saveBeneficiary(b);
-		
-		
-		if(addBeneficiary != null)
+				
+			
+			if(addBeneficiary == null)
+				throw(new  Exception("Issues with server"));
 			return ResponseEntity.ok("Beneficiary added successfull with beneficiary id : " + addBeneficiary.getBid());
 		}
+		catch(Exception e) {			
+			return ResponseEntity.badRequest().body("failed to add beneficiary : "+e.getMessage());
+		}
 
-		return ResponseEntity.badRequest().body("failed to add beneficiary");
 	}
 	
 	@GetMapping(value="/getbeneficiary/{accountNo}")

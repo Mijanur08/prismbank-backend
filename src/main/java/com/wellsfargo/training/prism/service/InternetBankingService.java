@@ -34,6 +34,9 @@ public class InternetBankingService {
 		if(ibu.getTransactionPassword().equals(dummy.getTransactionPassword())) return true;
 		return false;
 	}
+	public void deleteIBUser(Long accountNo) {
+		ibrepo.deleteById(accountNo);
+	}
 
 
 }

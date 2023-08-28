@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
-import com.wellsfargo.training.prism.model.Account;
 import com.wellsfargo.training.prism.model.Customer;
 import com.wellsfargo.training.prism.service.AccountService;
 import com.wellsfargo.training.prism.service.CustomerService;
+import com.wellsfargo.training.prism.service.InternetBankingService;
 
 @CrossOrigin(origins="http://localhost:3000")
 @RestController
@@ -30,7 +30,9 @@ public class CustomerController {
 	@Autowired
 	private CustomerService cService;
 	@Autowired
-	AccountService aService;
+	private AccountService aService;
+	@Autowired 
+	private InternetBankingService ibService;
 	
 	@PostMapping(value="/create")
 	public ResponseEntity<String> createAccount(@RequestBody @Validated Customer c){
@@ -75,23 +77,7 @@ public class CustomerController {
 					orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
 			return ResponseEntity.ok().body(c);
 	}
-//	
-//	@GetMapping(value="/customer/profile/{accountNo}")
-//	public ResponseEntity<Customer> getUserInfo(@PathVariable(value="accountNo") Long accountNo)
-//		throws ResourceNotFoundException {
-//			Customer c = cService.getSingleCustomer(accountNo).
-//					orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
-//			return ResponseEntity.ok().body(c);		
-//	}
-	
-//	@GetMapping(value="/customer/profile/{accountNo}")
-//	public ResponseEntity<Account> getUserAccount(@PathVariable(value="accountNo") Long accountNo)
-//		throws ResourceNotFoundException {
-//			Account a = aService.getAccountDetails(accountNo).
-//					orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
-//			return ResponseEntity.ok().body(a);		
-//	}
-	
+
 	
   @DeleteMapping(value="/customer/{accountNo}")
 	public Map<String,Boolean> deleteCustomer(@PathVariable(value="accountNo") Long accountNo)
@@ -100,6 +86,8 @@ public class CustomerController {
 				orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
 		cService.deleteCustomer(accountNo);
 		aService.deleteAccount(accountNo);
+		ibService.deleteIBUser(accountNo);
+		
 		
 		Map<String,Boolean> response=new HashMap<>();
 		response.put("Customer Deleted", Boolean.TRUE);
