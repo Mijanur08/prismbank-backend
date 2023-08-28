@@ -75,14 +75,14 @@ public class CustomerController {
 					orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
 			return ResponseEntity.ok().body(c);
 	}
-	
-	@GetMapping(value="/customer/profile/{accountNo}")
-	public ResponseEntity<Customer> getUserInfo(@PathVariable(value="accountNo") Long accountNo)
-		throws ResourceNotFoundException {
-			Customer c = cService.getSingleCustomer(accountNo).
-					orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
-			return ResponseEntity.ok().body(c);		
-	}
+//	
+//	@GetMapping(value="/customer/profile/{accountNo}")
+//	public ResponseEntity<Customer> getUserInfo(@PathVariable(value="accountNo") Long accountNo)
+//		throws ResourceNotFoundException {
+//			Customer c = cService.getSingleCustomer(accountNo).
+//					orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
+//			return ResponseEntity.ok().body(c);		
+//	}
 	
 //	@GetMapping(value="/customer/profile/{accountNo}")
 //	public ResponseEntity<Account> getUserAccount(@PathVariable(value="accountNo") Long accountNo)
