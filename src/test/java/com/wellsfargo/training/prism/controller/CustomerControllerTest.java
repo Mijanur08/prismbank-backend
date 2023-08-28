@@ -2,7 +2,6 @@ package com.wellsfargo.training.prism.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,7 +11,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -229,29 +227,11 @@ class CustomerControllerTest {
 		updatedCustomer.setLastName("Mishra");
 		updatedCustomer.setFatherName("Adhir Mishra");
 		updatedCustomer.setAadharNumber("805543897644");
-		//SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		//Date dob2 = new Date(df.parse("1990-01-20").getTime());
 		updatedCustomer.setDob(dob1);
 		updatedCustomer.setEmail("dhiraj@gmail.com");
 		updatedCustomer.setPhoneNo("9967328066");
 		updatedCustomer.setAccountType("Savings");
 		updatedCustomer.setApproved(true);
-		
-//		Address resAddress2 = new Address();
-//		resAddress2.setLine1("MG Road");
-//		resAddress2.setLine2("College Street");
-//		resAddress2.setLandmark("Presidency College");
-//		resAddress2.setCity("Kolkata");
-//		resAddress2.setState("West Bengal");
-//		resAddress2.setPincode("700456");
-//		
-//		Address perAddress2 = new Address();
-//		perAddress2.setLine1("MG Road");
-//		perAddress2.setLine2("College Street");
-//		perAddress2.setLandmark("Presidency College");
-//		perAddress2.setCity("Kolkata");
-//		perAddress2.setState("West Bengal");
-//		perAddress2.setPincode("700456");
 		
 		updatedCustomer.setResAddress(resAddress1);
 		updatedCustomer.setPerAddress(perAddress1);
@@ -365,58 +345,4 @@ class CustomerControllerTest {
 		verify(cService,times(1)).getSingleCustomer(151000001L);
 		
 	}
-
-//
-//	@Test
-//	void testDeleteCustomer() throws ResourceNotFoundException, ParseException{
-//		
-//		Customer existingCustomer = new Customer();
-//		
-//		existingCustomer.setAccountNo(151000001L);
-//		existingCustomer.setSalutation("MR.");
-//		existingCustomer.setFirstName("Dhiraj");
-//		existingCustomer.setMiddleName("Kumar");
-//		existingCustomer.setLastName("Mishra");
-//		existingCustomer.setFatherName("Adhir Mishra");
-//		existingCustomer.setAadharNumber("805543897644");
-//		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-//		Date dob1 = new Date(df.parse("1990-01-20").getTime());
-//		existingCustomer.setDob(dob1);
-//		existingCustomer.setEmail("dhiraj@gmail.com");
-//		existingCustomer.setPhoneNo("9967328044");
-//		existingCustomer.setAccountType("Savings");
-//		existingCustomer.setApproved(true);
-//		
-//		Address resAddress = new Address();
-//		resAddress.setLine1("MG Road");
-//		resAddress.setLine2("College Street");
-//		resAddress.setLandmark("Presidency College");
-//		resAddress.setCity("Kolkata");
-//		resAddress.setState("West Bengal");
-//		resAddress.setPincode("700456");
-//		
-//		Address perAddress = new Address();
-//		perAddress.setLine1("MG Road");
-//		perAddress.setLine2("College Street");
-//		perAddress.setLandmark("Presidency College");
-//		perAddress.setCity("Kolkata");
-//		perAddress.setState("West Bengal");
-//		perAddress.setPincode("700456");
-//		
-//		existingCustomer.setResAddress(resAddress);
-//		existingCustomer.setPerAddress(perAddress);
-//		
-//		when(cService.getSingleCustomer(151000001L)).thenReturn(Optional.of(existingCustomer));
-//		doNothing().when(cService).deleteCustomer(151000001L);
-//		
-//		Map<String,Boolean> response=customerController.deleteCustomer(151000001L);
-//		
-//		assertTrue(response.containsKey("Customer Deleted"));
-//		assertTrue(response.get("Customer Deleted"));
-//		
-//		verify(cService,times(1)).getSingleCustomer(151000001L);
-//		verify(cService, times(1)).deleteCustomer(151000001L);	
-//		
-//	}
-
 }
