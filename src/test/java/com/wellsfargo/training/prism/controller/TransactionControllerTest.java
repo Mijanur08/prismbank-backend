@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.wellsfargo.training.prism.controller.TransactionController.TransactionDetails;
+import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Account;
 import com.wellsfargo.training.prism.model.Transaction;
 import com.wellsfargo.training.prism.service.TransactionService;
@@ -33,6 +34,7 @@ class TransactionControllerTest {
 	@Autowired
 	private TransactionController transactionController;
 	
+	@MockBean
 	private TransactionDetails transactionDetails;
 
 	@BeforeEach
@@ -46,11 +48,20 @@ class TransactionControllerTest {
 	}
 
 	@Test
-	void testMakeTransaction() {
+	void testMakeTransaction() throws ResourceNotFoundException{
 		
 		
 		Account account1 = new Account();
+		account1.setAccountNo(151000001L);
+		account1.setBalance(50000);
+		account1.setAccountType("Savings");
+		
 		Account account2 = new Account();
+		account2.setAccountNo(151000002L);
+		account2.setBalance(40000);
+		account2.setAccountType("Savings");
+		
+		transaction.setTransactionId(1L);
 		transaction.setSenderAccount(account1);
 		transaction.setReceiverAccount(account2);
 		transaction.setMode("RTGS");
@@ -58,6 +69,16 @@ class TransactionControllerTest {
 		transaction.setAmount(1000);
 		LocalDateTime now = LocalDateTime.now();
 		transaction.setTimestamp(now);
+		
+		transactionDetails.tid = transaction.getTransactionId();
+		transactionDetails.fromAccount = String.valueOf(account1.getAccountNo());
+		transactionDetails.toAccount = String.valueOf(account2.getAccountNo());
+		transactionDetails.mode = transaction.getMode();
+		transactionDetails.remark = transaction.getRemark();
+		transactionDetails.amount = transaction.getAmount();
+		transactionDetails.timestamp = transaction.getTimestamp();
+		transactionDetails.transactionPassword = "1234";
+		transactionDetails.type = "Online";
 		
 		when(tService.saveTransaction(any(Transaction.class))).thenReturn(transaction);
 		ResponseEntity<String> re = transactionController.makeTransaction(transactionDetails);
@@ -80,7 +101,25 @@ class TransactionControllerTest {
 
 	@Test
 	void testGetAllTransactions() {
-		fail("Not yet implemented");
+		
+		Account account1 = new Account();
+		account1.setAccountNo(151000001L);
+		account1.setBalance(50000);
+		account1.setAccountType("Savings");
+		
+		Account account2 = new Account();
+		account2.setAccountNo(151000002L);
+		account2.setBalance(40000);
+		account2.setAccountType("Savings");
+		
+		transaction.setTransactionId(1L);
+		transaction.setSenderAccount(account1);
+		transaction.setReceiverAccount(account2);
+		transaction.setMode("RTGS");
+		transaction.setRemark("Donation");
+		transaction.setAmount(1000);
+		LocalDateTime now = LocalDateTime.now();
+		transaction.setTimestamp(now);
 	}
 
 	@Test
