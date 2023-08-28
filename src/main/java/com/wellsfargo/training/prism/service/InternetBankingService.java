@@ -24,5 +24,13 @@ public class InternetBankingService {
 
 		return ibrepo.findByEmail(userid);
 	}
+	public Boolean checkTransactionPassword(Long account, String password){
+		InternetBankingUser ibu = ibrepo.findById(account).orElse(null);
+		if(ibu == null) return false;
+		InternetBankingUser dummy = new InternetBankingUser();
+		dummy.setTransactionPassword(password);
+		if(ibu.getTransactionPassword().equals(dummy.getTransactionPassword())) return true;
+		return false;
+	}
 
 }

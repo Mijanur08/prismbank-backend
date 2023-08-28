@@ -39,7 +39,7 @@ public class Transaction {
 	private Account receiverAccount;
 	
 	private @NonNull String mode;
-	private @NonNull String remarks;
+	private @NonNull String remark;
 	private float amount;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd@HH:mm:ss")

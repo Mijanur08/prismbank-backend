@@ -21,6 +21,11 @@ public class Account {
 	
 	private @NonNull String accountType;
 	
+	public Account( Account a) {
+		this.accountNo = a.getAccountNo();
+		this.accountType = a.getAccountType();
+		this.balance = a.getBalance();
+	}
 //	@OneToMany
 //	@JoinColumn(name="beneficiary_id")
 //	private Beneficiary beneficiaries;
