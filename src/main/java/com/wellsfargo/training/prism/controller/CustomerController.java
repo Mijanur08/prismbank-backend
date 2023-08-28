@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Customer;
-import com.wellsfargo.training.prism.service.AccountService;
 import com.wellsfargo.training.prism.service.CustomerService;
 import com.wellsfargo.training.prism.service.InternetBankingService;
 
@@ -29,8 +28,7 @@ import com.wellsfargo.training.prism.service.InternetBankingService;
 public class CustomerController {
 	@Autowired
 	private CustomerService cService;
-	@Autowired
-	private AccountService aService;
+	
 	@Autowired 
 	private InternetBankingService ibService;
 	
@@ -85,8 +83,8 @@ public class CustomerController {
 		cService.getSingleCustomer(accountNo).
 				orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
 		cService.deleteCustomer(accountNo);
-		aService.deleteAccount(accountNo);
 		ibService.deleteIBUser(accountNo);
+		//aService.deleteAccount(accountNo);
 		
 		
 		Map<String,Boolean> response=new HashMap<>();

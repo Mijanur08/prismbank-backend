@@ -43,6 +43,7 @@ public class AccountController {
 				throw (new ResourceNotFoundException("Account does not exist"));
 			c.setApproved(true);
 			c = cService.registerCustomer(c);
+			newAccount.setAccountType(c.getAccountType());;
 			Account acc = aService.saveAccountDetails(newAccount);
 
 			if(acc == null)
