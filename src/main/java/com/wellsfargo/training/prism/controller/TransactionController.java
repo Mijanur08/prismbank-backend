@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wellsfargo.training.prism.exception.InsufficientBalanceException;
+import com.wellsfargo.training.prism.exception.NoTransactionFoundException;
+import com.wellsfargo.training.prism.exception.PasswordIncorrectException;
 import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Account;
 import com.wellsfargo.training.prism.model.Transaction;
@@ -65,12 +68,12 @@ public class TransactionController {
 			Long receiverAcc = Long.valueOf(t.toAccount);
 			
 			if(ibuService.checkTransactionPassword(senderAcc, t.transactionPassword) == false)
-				throw(new Exception("Transaction Password Incorrect"));
+				throw(new PasswordIncorrectException("Transaction Password Incorrect"));
 			
 			float senderAccountBalance = aController.getAccountBalance(senderAcc);
 			float receiverAccountBalance = aController.getAccountBalance(receiverAcc);
 			if(t.amount>senderAccountBalance) 
-				throw(new Exception("Insufficient Balance"));
+				throw(new InsufficientBalanceException("Insufficient Balance"));
 			
 			Transaction transaction = new Transaction();
 			transaction.setAmount(t.amount);
@@ -131,7 +134,7 @@ public class TransactionController {
 			Long accNo = Long.valueOf(t.fromAccount);
 			float accountBalance = aController.getAccountBalance(accNo);
 			if(t.amount>accountBalance) 
-				throw(new Exception("Insufficient Balance"));
+				throw(new InsufficientBalanceException("Insufficient Balance"));
 			Transaction transaction = new Transaction();
 			transaction.setAmount(t.amount);
 			transaction.setMode("cash");
@@ -158,6 +161,8 @@ public class TransactionController {
 	public ResponseEntity<List<Transaction>> getAllTransactions(){
 		try {
 			List<Transaction> allTransaction = tService.listAll();
+			if(allTransaction==null) 
+				throw(new NoTransactionFoundException("No Transaction Found"));
 			return ResponseEntity.ok(allTransaction);
 		}
 		catch(Exception e) {
@@ -202,8 +207,10 @@ public class TransactionController {
 				//td.balance = t.getSenderAccount().getBalance();
 				result.add(td);
 			}
+			
 			result.sort((o1,o2)
 					-> o2.timestamp.compareTo(o1.timestamp));
+			
 			return ResponseEntity.ok(result);
 
 		}
