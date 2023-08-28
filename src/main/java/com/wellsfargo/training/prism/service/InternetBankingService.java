@@ -16,6 +16,7 @@ public class InternetBankingService {
 	@Autowired
 	private InternetBankingRepository ibrepo;
 	
+	
 	public InternetBankingUser registerUser(InternetBankingUser ibu) {
 		return ibrepo.save(ibu);
 	}
@@ -24,6 +25,7 @@ public class InternetBankingService {
 
 		return ibrepo.findByEmail(userid);
 	}
+
 	public Boolean checkTransactionPassword(Long account, String password){
 		InternetBankingUser ibu = ibrepo.findById(account).orElse(null);
 		if(ibu == null) return false;
@@ -32,5 +34,9 @@ public class InternetBankingService {
 		if(ibu.getTransactionPassword().equals(dummy.getTransactionPassword())) return true;
 		return false;
 	}
+	public void deleteIBUser(Long accountNo) {
+		ibrepo.deleteById(accountNo);
+	}
+
 
 }

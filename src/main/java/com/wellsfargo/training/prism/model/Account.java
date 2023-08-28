@@ -19,6 +19,7 @@ public class Account {
 	
 	private  float balance;
 	
+
 	private @NonNull String accountType;
 	
 	public Account( Account a) {
@@ -26,8 +27,5 @@ public class Account {
 		this.accountType = a.getAccountType();
 		this.balance = a.getBalance();
 	}
-//	@OneToMany
-//	@JoinColumn(name="beneficiary_id")
-//	private Beneficiary beneficiaries;
 	
 }

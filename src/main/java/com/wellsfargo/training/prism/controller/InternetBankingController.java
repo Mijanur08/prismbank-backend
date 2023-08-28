@@ -49,8 +49,9 @@ public class InternetBankingController {
 	}
 	@PostMapping(value="/login")
 	public Map<String,Long> loginCustomer(@RequestBody @Validated InternetBankingUser ibu) throws ResourceNotFoundException{
-		Map<String, Long > response= new HashMap<>();
-		Long flag = 0L;
+
+		Map<String, Long> response = new HashMap<>();
+        Long flag = 0L;
 		String userid = ibu.getEmail();
 		String password = ibu.getPassword();
 		InternetBankingUser login= IBService.loginCustomer(userid).orElseThrow(() ->
@@ -58,12 +59,16 @@ public class InternetBankingController {
 		
 		if(userid.equals(login.getEmail()) && password.equals(login.getPassword()))
 		{
+
 			flag = 1L;
+
 
 		}
 		response.put("login", flag);
 		response.put("accountNo",login.getAccountNumber() );
 
+
 		return response;
 	}
+
 }

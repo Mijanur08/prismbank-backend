@@ -21,6 +21,7 @@ import com.wellsfargo.training.prism.exception.ResourceNotFoundException;
 import com.wellsfargo.training.prism.model.Customer;
 import com.wellsfargo.training.prism.service.AccountService;
 import com.wellsfargo.training.prism.service.CustomerService;
+import com.wellsfargo.training.prism.service.InternetBankingService;
 
 @CrossOrigin(origins="http://localhost:3000")
 @RestController
@@ -29,7 +30,9 @@ public class CustomerController {
 	@Autowired
 	private CustomerService cService;
 	@Autowired
-	AccountService aService;
+	private AccountService aService;
+	@Autowired 
+	private InternetBankingService ibService;
 	
 	@PostMapping(value="/create")
 	public ResponseEntity<String> createAccount(@RequestBody @Validated Customer c){
@@ -59,12 +62,14 @@ public class CustomerController {
 					prevAccountDetails.setPhoneNo(c.getPhoneNo());
 					prevAccountDetails.setAadharNumber(c.getAadharNumber());
 					prevAccountDetails.setDob(c.getDob());
+					prevAccountDetails.setAccountType(c.getAccountType());
 					prevAccountDetails.setResAddress(c.getResAddress());
 					prevAccountDetails.setPerAddress(c.getPerAddress());
 					
 					final Customer updatedAccount = cService.registerCustomer(prevAccountDetails);
 					return ResponseEntity.ok().body(updatedAccount);
 	}
+	
 	@GetMapping(value="/customer/{accountNo}")
 	public ResponseEntity<Customer> getCustomerById(@PathVariable(value="accountNo") Long accountNo)
 		throws ResourceNotFoundException {
@@ -72,7 +77,8 @@ public class CustomerController {
 					orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
 			return ResponseEntity.ok().body(c);
 	}
-  
+
+	
   @DeleteMapping(value="/customer/{accountNo}")
 	public Map<String,Boolean> deleteCustomer(@PathVariable(value="accountNo") Long accountNo)
 	    throws ResourceNotFoundException {
@@ -80,10 +86,12 @@ public class CustomerController {
 				orElseThrow(() -> new ResourceNotFoundException("Customer not found for this account number " + accountNo));
 		cService.deleteCustomer(accountNo);
 		aService.deleteAccount(accountNo);
+		ibService.deleteIBUser(accountNo);
+		
 		
 		Map<String,Boolean> response=new HashMap<>();
 		response.put("Customer Deleted", Boolean.TRUE);
 		return response;
 	}
-	
+
 }
