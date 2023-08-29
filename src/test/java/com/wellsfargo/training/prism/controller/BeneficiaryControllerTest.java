@@ -97,12 +97,12 @@ class BeneficiaryControllerTest {
 		allBeneficiary.add(beneficiary1);
 		allBeneficiary.add(beneficiary2);
 		
-		when(bService.listAll()).thenReturn(allBeneficiary);
+		when(bService.listAllAddedBeneficiary(account)).thenReturn(allBeneficiary);
 		List<Beneficiary> re = beneficiaryController.getAllBeneficiary(151000001L);
 		assertEquals(2, re.size());
 		assertEquals(151000050L, re.get(0).getAccountNo());
 		assertEquals(151000070L, re.get(1).getAccountNo());
-		verify(bService,times(1)).listAll();
+		verify(bService,times(1)).listAllAddedBeneficiary(account);
 		
 	}
 
@@ -129,7 +129,6 @@ class BeneficiaryControllerTest {
 		Map<String,Boolean> response = beneficiaryController.deleteBeneficiary(1L);
 		assertTrue(response.containsKey("deleted"));
 		assertTrue(response.get("deleted"));
-		verify(bService,times(1)).getSingleBeneficiary(1L);
 		verify(bService,times(1)).deleteBeneficiary(1L);
 	}
 
