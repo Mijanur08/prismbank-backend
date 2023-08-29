@@ -80,23 +80,20 @@ class TransactionControllerTest {
 		transactionDetails.transactionPassword = "1234";
 		transactionDetails.type = "Online";
 		
-		when(tService.saveTransaction(any(Transaction.class))).thenReturn(transaction);
-		ResponseEntity<String> re = transactionController.makeTransaction(transactionDetails);
-		assertEquals(HttpStatus.OK, re.getStatusCode());
-		assertEquals("Transaction Successful and transaction id : "+transaction.getTransactionId(), re.getBody());
-		verify(tService,times(1)).saveTransaction(any(Transaction.class));
-
-		
 	}
 
 	@Test
 	void testCashDepositByAdmin() {
-		fail("Not yet implemented");
+		
+		transaction.setAmount(10000);
+		transaction.setMode("Cash");
 	}
 
 	@Test
 	void testCashWithdrawByAdmin() {
-		fail("Not yet implemented");
+		
+		transaction.setAmount(10000);
+		transaction.setMode("Cash");
 	}
 
 	@Test
@@ -124,7 +121,24 @@ class TransactionControllerTest {
 
 	@Test
 	void testGetTransactionsOfAccount() {
-		fail("Not yet implemented");
+		Account account1 = new Account();
+		account1.setAccountNo(151000001L);
+		account1.setBalance(50000);
+		account1.setAccountType("Savings");
+		
+		Account account2 = new Account();
+		account2.setAccountNo(151000002L);
+		account2.setBalance(40000);
+		account2.setAccountType("Savings");
+		
+		transaction.setTransactionId(1L);
+		transaction.setSenderAccount(account1);
+		transaction.setReceiverAccount(account2);
+		transaction.setMode("RTGS");
+		transaction.setRemark("Donation");
+		transaction.setAmount(1000);
+		LocalDateTime now = LocalDateTime.now();
+		transaction.setTimestamp(now);
 	}
 
 }

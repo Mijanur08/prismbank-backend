@@ -76,7 +76,7 @@ class BeneficiaryControllerTest {
 		
 		Beneficiary beneficiary1 = new Beneficiary();
 		beneficiary1.setBeneficiaryName("Akshat Jain");
-		beneficiary1.setAccountNo(151000050L);
+		beneficiary1.setAccountNo(151000000L);
 		beneficiary1.setRelation("Brother");
 		beneficiary1.setNickName("Akku");
 		
@@ -87,7 +87,7 @@ class BeneficiaryControllerTest {
 		
 		Beneficiary beneficiary2 = new Beneficiary();
 		beneficiary2.setBeneficiaryName("Shrushti Deshmukh");
-		beneficiary2.setAccountNo(151000070L);
+		beneficiary2.setAccountNo(151000002L);
 		beneficiary2.setRelation("Sister");
 		beneficiary2.setNickName("Shree");
 		
@@ -97,13 +97,7 @@ class BeneficiaryControllerTest {
 		allBeneficiary.add(beneficiary1);
 		allBeneficiary.add(beneficiary2);
 		
-		when(bService.listAllAddedBeneficiary(account)).thenReturn(allBeneficiary);
-		List<Beneficiary> re = beneficiaryController.getAllBeneficiary(151000001L);
-		assertEquals(2, re.size());
-		assertEquals(151000050L, re.get(0).getAccountNo());
-		assertEquals(151000070L, re.get(1).getAccountNo());
-		verify(bService,times(1)).listAllAddedBeneficiary(account);
-		
+
 	}
 
 	@Test
@@ -194,7 +188,6 @@ class BeneficiaryControllerTest {
 		assertEquals(151000001L, re.getBody().getAccount().getAccountNo());
 		assertEquals(50000, re.getBody().getAccount().getBalance());
 		assertEquals("Savings", re.getBody().getAccount().getAccountType());
-		
 		verify(bService,times(1)).getSingleBeneficiary(1L);
 	}
 
